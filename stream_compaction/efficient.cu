@@ -20,32 +20,51 @@ namespace StreamCompaction {
         // offset = 2^(d+1)
         __global__ void kernUpSweep(int n, int offset, int *data) {
             // TODO: Implement the efficient scan kernel
-            int k = threadIdx.x + blockIdx.x * blockDim.x;
-            if ( (k < n) && (k % offset == 0) ) {
-                data[k + offset - 1] += data[k + offset / 2 - 1];
+            // int k = threadIdx.x + blockIdx.x * blockDim.x;
+            // if ( (k < n) && (k % offset == 0) ) {
+            //     data[k + offset - 1] += data[k + offset / 2 - 1];
+            // }
+
+            int tid = threadIdx.x + blockIdx.x * blockDim.x;
+            if (tid >= n / offset) {
+                return;
             }
+            int k = tid * offset;
+            data[k + offset - 1] += data[k + offset / 2 - 1];
         }
 
         // offset = 2^(d+1)
         __global__ void kernDownSweep(int n, int offset, int *data, const int *idata) {
             // TODO: Implement the efficient scan kernel for down-sweep
-            int k = threadIdx.x + blockIdx.x * blockDim.x;
-            if ( (k < n) && (k % offset == 0) ) {
-                int t = idata[k + (offset >> 1) - 1];
-                data[k + (offset >> 1) - 1] = idata[k + offset - 1];
-                data[k + offset - 1] += t;
+            // int k = threadIdx.x + blockIdx.x * blockDim.x;
+            // if ( (k < n) && (k % offset == 0) ) {
+            //     int t = idata[k + (offset >> 1) - 1];
+            //     data[k + (offset >> 1) - 1] = idata[k + offset - 1];
+            //     data[k + offset - 1] += t;
+            // }
+
+            int tid = threadIdx.x + blockIdx.x * blockDim.x;
+            if (tid >= n / offset) {
+                return;
             }
+            int k = tid * offset;
+            int t = idata[k + (offset >> 1) - 1];
+            data[k + (offset >> 1) - 1] = idata[k + offset - 1];
+            data[k + offset - 1] += t;
         }
 
         void upSweep(int n, int *data) {
             // TODO: Implement the up-sweep phase of the efficient scan
             dim3 threads(256);
-            dim3 blocks(1 + (n - 1) / 256);
+            // dim3 blocks(1 + (n - 1) / 256);
             int level = ilog2ceil(n);
             for (int d = 0; d <= level - 1; ++d) {
                 int offset = (1 << (d + 1));
+                int activeThreads = n / offset;
+                dim3 blocks((activeThreads + threads.x - 1) / threads.x);
                 kernUpSweep<<<blocks, threads>>>(n, offset, data);
-                cudaDeviceSynchronize();
+                checkCUDAError("upSweep kernel launch failed!");
+                // cudaDeviceSynchronize(); // Same-stream launches already execute in order.
             }
             cudaDeviceSynchronize();
             checkCUDAError("upSweep kernel execution failed!");
@@ -54,7 +73,7 @@ namespace StreamCompaction {
         void downSweep(int n, int *data) {
             // TODO: Implement the down-sweep phase of the efficient scan
             dim3 threads(256);
-            dim3 blocks(1 + (n - 1) / 256);
+            // dim3 blocks(1 + (n - 1) / 256);
             int level = ilog2ceil(n);
 
             // x[n - 1] = 0;
@@ -63,8 +82,11 @@ namespace StreamCompaction {
             
             for (int d = level - 1; d >= 0; --d) {
                 int offset = (1 << (d + 1));
+                int activeThreads = n / offset;
+                dim3 blocks((activeThreads + threads.x - 1) / threads.x);
                 kernDownSweep<<<blocks, threads>>>(n, offset, data, data);
-                cudaDeviceSynchronize();
+                checkCUDAError("downSweep kernel launch failed!");
+                // cudaDeviceSynchronize(); // Same-stream launches already execute in order.
             }
             cudaDeviceSynchronize();
             checkCUDAError("downSweep kernel execution failed!");
