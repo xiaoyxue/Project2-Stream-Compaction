@@ -75,14 +75,6 @@ namespace StreamCompaction {
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */
         void scan(int n, int *odata, const int *idata, bool devicePointers) {
-
-#if STREAM_COMPACTION_EFFICIENT_ENABLE_TIMING
-            const bool ownsTimer = !timer().isGpuTimerStarted();
-            if (ownsTimer) {
-                timer().startGpuTimer();
-            }
-#endif
-
             // TODO
             int power_of_two = (1 << ilog2ceil(n));
 
@@ -98,9 +90,21 @@ namespace StreamCompaction {
                        devicePointers ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice);
             checkCUDAError("cudaMemcpy dev_data failed!");
 
+#if STREAM_COMPACTION_EFFICIENT_ENABLE_TIMING
+            const bool ownsTimer = !timer().isGpuTimerStarted();
+            if (ownsTimer) {
+                timer().startGpuTimer();
+            }
+#endif
             upSweep(power_of_two, dev_data);
 
             downSweep(power_of_two, dev_data);
+
+#if STREAM_COMPACTION_EFFICIENT_ENABLE_TIMING
+            if (ownsTimer) {
+                timer().endGpuTimer();
+            }
+#endif
 
             cudaMemcpy(odata, dev_data, n * sizeof(int),
                        devicePointers ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
@@ -109,11 +113,7 @@ namespace StreamCompaction {
             checkCUDAError("cudaFree dev_data failed!");
 
 
-#if STREAM_COMPACTION_EFFICIENT_ENABLE_TIMING
-            if (ownsTimer) {
-                timer().endGpuTimer();
-            }
-#endif
+
 
         }
 
@@ -127,14 +127,6 @@ namespace StreamCompaction {
          * @returns      The number of elements remaining after compaction.
          */
         int compact(int n, int *odata, const int *idata) {
-
-#if STREAM_COMPACTION_EFFICIENT_ENABLE_TIMING
-            const bool ownsTimer = !timer().isGpuTimerStarted();
-            if (ownsTimer) {
-                timer().startGpuTimer();
-            }
-#endif
-
             // TODO
             int *dev_bools;
             int *dev_idata;
@@ -165,6 +157,12 @@ namespace StreamCompaction {
             cudaMemset(dev_indices, 0, n * sizeof(int));
             checkCUDAError("cudaMemset dev_indices failed!");
 
+#if STREAM_COMPACTION_EFFICIENT_ENABLE_TIMING
+            const bool ownsTimer = !timer().isGpuTimerStarted();
+            if (ownsTimer) {
+                timer().startGpuTimer();
+            }
+#endif
             scan(n, dev_indices, dev_bools, true);
             checkCUDAError("scan dev_indices failed!");
 
@@ -172,6 +170,11 @@ namespace StreamCompaction {
             cudaDeviceSynchronize();
             checkCUDAError("kernScatter kernel execution failed!");
 
+#if STREAM_COMPACTION_EFFICIENT_ENABLE_TIMING
+            if (ownsTimer) {
+                timer().endGpuTimer();
+            }
+#endif
             int count;
             cudaMemcpy(&count, dev_indices + n - 1, sizeof(int), cudaMemcpyDeviceToHost);
             checkCUDAError("cudaMemcpy count failed!");
@@ -191,13 +194,6 @@ namespace StreamCompaction {
 
             cudaFree(dev_odata);
             checkCUDAError("cudaFree dev_odata failed!");
-
-
-#if STREAM_COMPACTION_EFFICIENT_ENABLE_TIMING
-            if (ownsTimer) {
-                timer().endGpuTimer();
-            }
-#endif
 
             return count;
         }

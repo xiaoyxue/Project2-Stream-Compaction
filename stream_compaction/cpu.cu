@@ -92,6 +92,9 @@ namespace StreamCompaction {
          * @returns the number of elements remaining after compaction.
          */
         int compactWithScan(int n, int *odata, const int *idata) {
+
+            int *bools = new int[n];
+            int *exclusive_scan = new int[n];
 #if STREAM_COMPACTION_CPU_ENABLE_TIMING
             const bool ownsTimer = !timer().isCpuTimerStarted();
             if (ownsTimer) {
@@ -99,18 +102,17 @@ namespace StreamCompaction {
             }
 #endif
             // TODO
-            int *bools = new int[n];
-            int *exclusiveScan = new int[n];
             MapToBoolean(n, bools, idata);
-            scan(n, exclusiveScan, bools);
-            int count = Scatter(n, odata, idata, bools, exclusiveScan);
-            delete[] bools;
-            delete[] exclusiveScan;
+            scan(n, exclusive_scan, bools);
+            int count = Scatter(n, odata, idata, bools, exclusive_scan);
+
 #if STREAM_COMPACTION_CPU_ENABLE_TIMING
             if (ownsTimer) {
                 timer().endCpuTimer();
             }
 #endif
+            delete[] bools;
+            delete[] exclusive_scan;
             return count;
         }
     }
