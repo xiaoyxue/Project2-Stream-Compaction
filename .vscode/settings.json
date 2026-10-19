@@ -8,10 +8,6 @@
     "clangd.enable": false,
     "cmake.generator": "Visual Studio 18 2026",
     "cmake.platform": "x64",
-    "cmake.toolset": "cuda=${workspaceFolder}\\build\\cuda-12.9",
-    "cmake.buildDirectory": "${workspaceFolder}\\build",
-    "cmake.configureSettings": {
-        "CMAKE_VS_GLOBALS": "VCToolsVersion=14.44.35207",
-        "CMAKE_TRY_COMPILE_PLATFORM_VARIABLES": "CMAKE_VS_GLOBALS"
-    }
+    "cmake.toolset": "cuda=${env:CUDA_PATH}",
+    "cmake.buildDirectory": "${workspaceFolder}\\build"
 }

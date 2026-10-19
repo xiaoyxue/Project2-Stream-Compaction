@@ -3,6 +3,10 @@
 
 #include "common.h"
 
+#ifndef STREAM_COMPACTION_CPU_ENABLE_TIMING
+#define STREAM_COMPACTION_CPU_ENABLE_TIMING 1
+#endif
+
 namespace StreamCompaction {
     namespace CPU {
         using StreamCompaction::Common::PerformanceTimer;
@@ -35,16 +39,24 @@ namespace StreamCompaction {
          * (Optional) For better understanding before starting moving to GPU, you can simulate your GPU scan in this function first.
          */
         void scan(int n, int *odata, const int *idata) {
-            // timer().startCpuTimer();
-            // TODO
             if (n < 1) {
                 return;
             }
+#if STREAM_COMPACTION_CPU_ENABLE_TIMING
+            const bool ownsTimer = !timer().isCpuTimerStarted();
+            if (ownsTimer) {
+                timer().startCpuTimer();
+            }
+#endif
 			odata[0] = 0;
 			for (int i = 1; i < n; i++) {
 				odata[i] = odata[i - 1] + idata[i - 1];
 			}
-            // timer().endCpuTimer();
+#if STREAM_COMPACTION_CPU_ENABLE_TIMING
+            if (ownsTimer) {
+                timer().endCpuTimer();
+            }
+#endif
         }
 
         /**
@@ -53,7 +65,12 @@ namespace StreamCompaction {
          * @returns the number of elements remaining after compaction.
          */
         int compactWithoutScan(int n, int *odata, const int *idata) {
-            timer().startCpuTimer();
+#if STREAM_COMPACTION_CPU_ENABLE_TIMING
+            const bool ownsTimer = !timer().isCpuTimerStarted();
+            if (ownsTimer) {
+                timer().startCpuTimer();
+            }
+#endif
             // TODO
             int j = 0;
             for (int i = 0; i < n; ++i) {
@@ -61,7 +78,11 @@ namespace StreamCompaction {
                     odata[j++] = idata[i];
                 }
             }
-            timer().endCpuTimer();
+#if STREAM_COMPACTION_CPU_ENABLE_TIMING
+            if (ownsTimer) {
+                timer().endCpuTimer();
+            }
+#endif
             return j;
         }
 
@@ -71,7 +92,12 @@ namespace StreamCompaction {
          * @returns the number of elements remaining after compaction.
          */
         int compactWithScan(int n, int *odata, const int *idata) {
-            timer().startCpuTimer();
+#if STREAM_COMPACTION_CPU_ENABLE_TIMING
+            const bool ownsTimer = !timer().isCpuTimerStarted();
+            if (ownsTimer) {
+                timer().startCpuTimer();
+            }
+#endif
             // TODO
             int *bools = new int[n];
             int *exclusiveScan = new int[n];
@@ -80,7 +106,11 @@ namespace StreamCompaction {
             int count = Scatter(n, odata, idata, bools, exclusiveScan);
             delete[] bools;
             delete[] exclusiveScan;
-            timer().endCpuTimer();
+#if STREAM_COMPACTION_CPU_ENABLE_TIMING
+            if (ownsTimer) {
+                timer().endCpuTimer();
+            }
+#endif
             return count;
         }
     }

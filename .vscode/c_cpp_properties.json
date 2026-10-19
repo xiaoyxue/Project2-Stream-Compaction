@@ -2,10 +2,10 @@
     "configurations": [
         {
             "name": "Win32",
-            "compilerPath": "${workspaceFolder}\\build\\cuda-12.9\\bin\\nvcc.exe",
+            "compilerPath": "${env:CUDA_PATH}\\bin\\nvcc.exe",
             "compilerArgs": [
                 "-ccbin",
-                "C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64"
+                "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\bin\\Hostx64\\x64"
             ],
             "intelliSenseMode": "windows-msvc-x64",
             "cppStandard": "c++17",
@@ -13,10 +13,10 @@
                 "${workspaceFolder}",
                 "${workspaceFolder}\\src",
                 "${workspaceFolder}\\stream_compaction",
-                "${workspaceFolder}\\build\\cuda-12.9\\include"
+                "${env:CUDA_PATH}\\include"
             ],
             "forcedInclude": [
-                "${workspaceFolder}\\build\\cuda-12.9\\include\\cuda_runtime.h"
+                "${env:CUDA_PATH}\\include\\cuda_runtime.h"
             ],
             "defines": [
                 "WIN32",

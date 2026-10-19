@@ -58,6 +58,11 @@ namespace StreamCompaction {
                 cudaEventDestroy(event_end);
             }
 
+            bool isCpuTimerStarted() const
+            {
+                return cpu_timer_started;
+            }
+
             void startCpuTimer()
             {
                 if (cpu_timer_started) { throw std::runtime_error("CPU timer already started"); }
@@ -77,6 +82,11 @@ namespace StreamCompaction {
                     static_cast<decltype(prev_elapsed_time_cpu_milliseconds)>(duro.count());
 
                 cpu_timer_started = false;
+            }
+
+            bool isGpuTimerStarted() const
+            {
+                return gpu_timer_started;
             }
 
             void startGpuTimer()
