@@ -12,15 +12,39 @@ namespace StreamCompaction {
             return timer;
         }
 
+        void MapToBoolean(int n, int *odata, const int *idata) {
+            for (int i = 0; i < n; ++i) {
+                odata[i] = (idata[i] != 0) ? 1 : 0;
+            }
+        }
+
+        int Scatter(int n, int *odata, const int *idata, const int *bools, const int *scan) {
+            int count = 0;
+            for (int i = 0; i < n; ++i) {
+                if (bools[i]) {
+                    odata[scan[i]] = idata[i];
+                    count++;
+                }
+            }
+            return count;
+        }
+
         /**
          * CPU scan (prefix sum).
          * For performance analysis, this is supposed to be a simple for loop.
          * (Optional) For better understanding before starting moving to GPU, you can simulate your GPU scan in this function first.
          */
         void scan(int n, int *odata, const int *idata) {
-            timer().startCpuTimer();
+            // timer().startCpuTimer();
             // TODO
-            timer().endCpuTimer();
+            if (n < 1) {
+                return;
+            }
+			odata[0] = 0;
+			for (int i = 1; i < n; i++) {
+				odata[i] = odata[i - 1] + idata[i - 1];
+			}
+            // timer().endCpuTimer();
         }
 
         /**
@@ -31,8 +55,14 @@ namespace StreamCompaction {
         int compactWithoutScan(int n, int *odata, const int *idata) {
             timer().startCpuTimer();
             // TODO
+            int j = 0;
+            for (int i = 0; i < n; ++i) {
+                if (idata[i] != 0) {
+                    odata[j++] = idata[i];
+                }
+            }
             timer().endCpuTimer();
-            return -1;
+            return j;
         }
 
         /**
@@ -43,8 +73,15 @@ namespace StreamCompaction {
         int compactWithScan(int n, int *odata, const int *idata) {
             timer().startCpuTimer();
             // TODO
+            int *bools = new int[n];
+            int *exclusiveScan = new int[n];
+            MapToBoolean(n, bools, idata);
+            scan(n, exclusiveScan, bools);
+            int count = Scatter(n, odata, idata, bools, exclusiveScan);
+            delete[] bools;
+            delete[] exclusiveScan;
             timer().endCpuTimer();
-            return -1;
+            return count;
         }
     }
 }
