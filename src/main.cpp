@@ -10,6 +10,8 @@
 #include <stream_compaction/cpu.h>
 #include <stream_compaction/naive.h>
 #include <stream_compaction/efficient.h>
+#include <stream_compaction/efficient_hardware_opt.h>
+#include <stream_compaction/radix_sort.h>
 #include <stream_compaction/thrust.h>
 #include "testing_helpers.hpp"
 
@@ -95,6 +97,27 @@ int main(int argc, char* argv[]) {
     printArray(NPOT, c, true);
     printCmpResult(NPOT, b, c);
 
+    zeroArray(SIZE, c);
+    printDesc("hardware-optimized scan, power-of-two");
+    StreamCompaction::EfficientHardwareOpt::scan(SIZE, c, a);
+    printElapsedTime(StreamCompaction::EfficientHardwareOpt::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+    printArray(SIZE, c, true);
+    printCmpResult(SIZE, b, c);
+
+    zeroArray(SIZE, c);
+    printDesc("hardware-optimized scan, non-power-of-two");
+    StreamCompaction::EfficientHardwareOpt::scan(NPOT, c, a);
+    printElapsedTime(StreamCompaction::EfficientHardwareOpt::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+    printArray(NPOT, c, true);
+    printCmpResult(NPOT, b, c);
+
+    printf("\n");
+    printf("**********************\n");
+    printf("** RADIX SORT TESTS **\n");
+    printf("**********************\n");
+    // testRadixSort(SIZE, "radix sort, power-of-two");
+    // testRadixSort(NPOT, "radix sort, non-power-of-two");
+
     printf("\n");
     printf("*****************************\n");
     printf("** STREAM COMPACTION TESTS **\n");
@@ -144,6 +167,20 @@ int main(int argc, char* argv[]) {
     printDesc("work-efficient compact, non-power-of-two");
     count = StreamCompaction::Efficient::compact(NPOT, c, a);
     printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+    printArray(count, c, true);
+    printCmpLenResult(count, expectedNPOT, b, c);
+
+    zeroArray(SIZE, c);
+    printDesc("hardware-optimized compact, power-of-two");
+    count = StreamCompaction::EfficientHardwareOpt::compact(SIZE, c, a);
+    printElapsedTime(StreamCompaction::EfficientHardwareOpt::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+    printArray(count, c, true);
+    printCmpLenResult(count, expectedCount, b, c);
+
+    zeroArray(SIZE, c);
+    printDesc("hardware-optimized compact, non-power-of-two");
+    count = StreamCompaction::EfficientHardwareOpt::compact(NPOT, c, a);
+    printElapsedTime(StreamCompaction::EfficientHardwareOpt::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
     printArray(count, c, true);
     printCmpLenResult(count, expectedNPOT, b, c);
 

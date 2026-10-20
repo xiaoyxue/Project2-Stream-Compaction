@@ -3,6 +3,8 @@ set(headers
     "cpu.h"
     "naive.h"
     "efficient.h"
+    "efficient_hardware_opt.h"
+    "radix_sort.h"
     "thrust.h"
     )
 
@@ -11,6 +13,8 @@ set(sources
     "cpu.cu"
     "naive.cu"
     "efficient.cu"
+    "efficient_hardware_opt.cu"
+    "radix_sort.cu"
     "thrust.cu"
     )
 
