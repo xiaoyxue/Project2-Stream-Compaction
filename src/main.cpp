@@ -15,7 +15,7 @@
 #include <stream_compaction/thrust.h>
 #include "testing_helpers.hpp"
 
-const int SIZE = 1 << 15; // feel free to change the size of array
+const int SIZE = 1 << 30; // feel free to change the size of array
 const int NPOT = SIZE - 3; // Non-Power-Of-Two
 int *a = new int[SIZE];
 int *b = new int[SIZE];
@@ -28,6 +28,9 @@ int main(int argc, char* argv[]) {
     printf("****************\n");
     printf("** SCAN TESTS **\n");
     printf("****************\n");
+
+    printf("SIZE: %d\n", SIZE);
+    printf("NPOT: %d\n", NPOT);
 
     genArray(SIZE - 1, a, 50);  // Leave a 0 at the end to test that edge case
     a[SIZE - 1] = 0;
