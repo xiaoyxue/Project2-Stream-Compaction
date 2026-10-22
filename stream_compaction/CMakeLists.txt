@@ -4,6 +4,7 @@ set(headers
     "naive.h"
     "efficient.h"
     "efficient_hardware_opt.h"
+    "efficient_hardware_recursive.h"
     "radix_sort.h"
     "thrust.h"
     )
@@ -14,6 +15,7 @@ set(sources
     "naive.cu"
     "efficient.cu"
     "efficient_hardware_opt.cu"
+    "efficient_hardware_recursive.cu"
     "radix_sort.cu"
     "thrust.cu"
     )

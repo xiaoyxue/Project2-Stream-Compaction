@@ -9,7 +9,7 @@
 #define STREAM_COMPACTION_EFFICIENT_HARDWARE_OPT_ENABLE_TIMING 1
 #endif
 
-#define TILE_WIDTH 256
+#define TILE_WIDTH 512
 
 namespace StreamCompaction {
     namespace EfficientHardwareOpt {

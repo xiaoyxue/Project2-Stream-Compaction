@@ -11,6 +11,7 @@
 #include <stream_compaction/naive.h>
 #include <stream_compaction/efficient.h>
 #include <stream_compaction/efficient_hardware_opt.h>
+#include <stream_compaction/efficient_hardware_recursive.h>
 #include <stream_compaction/radix_sort.h>
 #include <stream_compaction/thrust.h>
 #include "testing_helpers.hpp"
@@ -79,12 +80,12 @@ int main(int argc, char* argv[]) {
     printArray(SIZE, c, true);
     printCmpResult(SIZE, b, c);
 
-     zeroArray(SIZE, c);
-     printDesc("work-efficient scan, non-power-of-two");
-     StreamCompaction::Efficient::scan(NPOT, c, a);
-     printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-     printArray(NPOT, c, true);
-     printCmpResult(NPOT, b, c);
+    zeroArray(SIZE, c);
+    printDesc("work-efficient scan, non-power-of-two");
+    StreamCompaction::Efficient::scan(NPOT, c, a);
+    printElapsedTime(StreamCompaction::Efficient::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+    printArray(NPOT, c, true);
+    printCmpResult(NPOT, b, c);
 
     zeroArray(SIZE, c);
     printDesc("thrust scan, power-of-two");
@@ -107,12 +108,41 @@ int main(int argc, char* argv[]) {
     printArray(SIZE, c, true);
     printCmpResult(SIZE, b, c);
 
-     zeroArray(SIZE, c);
-     printDesc("hardware-optimized scan, non-power-of-two");
-     StreamCompaction::EfficientHardwareOpt::scan(NPOT, c, a);
-     printElapsedTime(StreamCompaction::EfficientHardwareOpt::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
-     printArray(NPOT, c, true);
-     printCmpResult(NPOT, b, c);
+    zeroArray(SIZE, c);
+    printDesc("hardware-optimized scan, non-power-of-two");
+    StreamCompaction::EfficientHardwareOpt::scan(NPOT, c, a);
+    printElapsedTime(StreamCompaction::EfficientHardwareOpt::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+    printArray(NPOT, c, true);
+    printCmpResult(NPOT, b, c);
+
+    zeroArray(SIZE, c);
+    printDesc("hardware-optimized-recursive scan, power-of-two");
+    StreamCompaction::EfficientHardwareRecursive::scan(SIZE, c, a);
+    printElapsedTime(StreamCompaction::EfficientHardwareRecursive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+    printArray(SIZE, c, true);
+    printCmpResult(SIZE, b, c);
+
+    zeroArray(SIZE, c);
+    printDesc("hardware-optimized-recursive scan, non-power-of-two");
+    StreamCompaction::EfficientHardwareRecursive::scan(NPOT, c, a);
+    printElapsedTime(StreamCompaction::EfficientHardwareRecursive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+    printArray(NPOT, c, true);
+    printCmpResult(NPOT, b, c);
+
+    zeroArray(SIZE, c);
+    printDesc("hardware-optimized-recursive conflict-free scan, power-of-two");
+    StreamCompaction::EfficientHardwareRecursive::conflictFreeScan(SIZE, c, a);
+    printElapsedTime(StreamCompaction::EfficientHardwareRecursive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+    printArray(SIZE, c, true);
+    printCmpResult(SIZE, b, c);
+
+    zeroArray(SIZE, c);
+    printDesc("hardware-optimized-recursive conflict-free scan, non-power-of-two");
+    StreamCompaction::EfficientHardwareRecursive::conflictFreeScan(NPOT, c, a);
+    printElapsedTime(StreamCompaction::EfficientHardwareRecursive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+    printArray(NPOT, c, true);
+    printCmpResult(NPOT, b, c);
+
 
     printf("\n");
     printf("**********************\n");

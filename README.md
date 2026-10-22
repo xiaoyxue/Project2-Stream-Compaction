@@ -82,6 +82,12 @@ the existing test layout, and use the CPU reference results.
 Radix sort remains skipped by default; enable `TEST_RADIX_SORT` after implementing
 it. Sorting is compared with `std::sort`.
 
+`stream_compaction/efficient_hardware_recursive.h` and `.cu` provide
+`EfficientHardwareRecursive::scan` and `EfficientHardwareRecursive::compact`
+with signatures matching the hardware-optimized module and a separate timer.
+Both functions are unimplemented stubs that throw `std::logic_error`; they are
+compiled into the library but are not called by the test driver.
+
 ### Windows build
 
 With Visual Studio 2026 C++ tools, CUDA 13.4, and a compatible CMake on `PATH`:
