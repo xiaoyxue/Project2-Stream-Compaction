@@ -217,6 +217,34 @@ int main(int argc, char* argv[]) {
     printArray(count, c, true);
     printCmpLenResult(count, expectedNPOT, b, c);
 
+    zeroArray(SIZE, c);
+    printDesc("hardware-optimized recursive compact, power-of-two");
+    count = StreamCompaction::EfficientHardwareRecursive::compact(SIZE, c, a);
+    printElapsedTime(StreamCompaction::EfficientHardwareRecursive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+    printArray(count, c, true);
+    printCmpLenResult(count, expectedCount, b, c);
+
+    zeroArray(SIZE, c);
+    printDesc("hardware-optimized recursive compact, non-power-of-two");
+    count = StreamCompaction::EfficientHardwareRecursive::compact(NPOT, c, a);
+    printElapsedTime(StreamCompaction::EfficientHardwareRecursive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+    printArray(count, c, true);
+    printCmpLenResult(count, expectedNPOT, b, c);
+
+    zeroArray(SIZE, c);
+    printDesc("hardware-optimized recursive conflict-free compact, power-of-two");
+    count = StreamCompaction::EfficientHardwareRecursive::conflictFreeCompact(SIZE, c, a);
+    printElapsedTime(StreamCompaction::EfficientHardwareRecursive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+    printArray(count, c, true);
+    printCmpLenResult(count, expectedCount, b, c);
+
+    zeroArray(SIZE, c);
+    printDesc("hardware-optimized recursive conflict-free compact, non-power-of-two");
+    count = StreamCompaction::EfficientHardwareRecursive::conflictFreeCompact(NPOT, c, a);
+    printElapsedTime(StreamCompaction::EfficientHardwareRecursive::timer().getGpuElapsedTimeForPreviousOperation(), "(CUDA Measured)");
+    printArray(count, c, true);
+    printCmpLenResult(count, expectedNPOT, b, c);
+
     system("pause"); // stop Win32 console from closing on exit
     delete[] a;
     delete[] b;

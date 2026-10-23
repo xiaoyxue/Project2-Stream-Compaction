@@ -153,7 +153,6 @@ namespace StreamCompaction {
             int *dev_bools;
             int *dev_idata;
             int *dev_odata;
-            int *indices = new int[n];
             
             cudaMalloc((void**)&dev_odata, n * sizeof(int));
             checkCUDAError("cudaMalloc dev_odata failed!");
